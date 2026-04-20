@@ -19,7 +19,8 @@ Based on OmniVoice model by k2-fsa.
 ## 📋 Requirements
 - Python 3.10 - 3.12 (3.12 recommended)
 - Minimum 8GB RAM
-- For GPU acceleration: NVIDIA GPU with CUDA 12.8+, minimum 16GB VRAM
+- For GPU acceleration: NVIDIA GPU with CUDA 12.8+
+- NVidia RTX3060 12GB work perfectly
 
 ---
 
