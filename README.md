@@ -1,5 +1,7 @@
 # OmniVoice TTS API Server
 
+A lightweight Python-based server designed to provide a robust API for Omnivoice TTS. This project enables seamless speech synthesis and high-fidelity voice cloning, allowing you to deploy a powerful voice generation engine in seconds.
+
 Zero-Shot Text-to-Speech API with voice cloning, supporting 600+ languages.
 Based on OmniVoice model by k2-fsa.
 
