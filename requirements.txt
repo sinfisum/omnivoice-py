@@ -1,0 +1,12 @@
+fastapi>=0.115.0
+uvicorn>=0.30.0
+python-multipart>=0.0.12
+soundfile>=0.12.1
+numpy>=2.0.0
+torch>=2.5.0
+torchaudio>=2.5.0
+transformers>=4.45.0
+tokenizers>=0.20.0
+accelerate>=0.34.0
+omnivoice>=0.1.0
+requests>=2.32.0

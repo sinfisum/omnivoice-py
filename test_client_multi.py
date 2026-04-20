@@ -1,0 +1,122 @@
+import os
+import requests
+
+# --- Configuration ---
+API_URL = "http://127.0.0.1:8880/v1/audio/speech/clone"
+OUTPUT_FOLDER = "./OUT"
+
+# --- Tasks list ---
+# Add any number of tasks here for batch processing
+TASKS = [
+    {
+        "id": "voice01",
+        "text": "Hello! This is the first test text for speech synthesis.",
+        "ref_text": "",
+        "audio_file_path": "./voice/male_middle-aged_normal_pitch.wav"
+    },
+    {
+        "id": "voice01",
+        "text": "Second example text with the same voice.",
+        "ref_text": "",
+        "audio_file_path": "./voice/male_middle-aged_normal_pitch.wav"
+    },
+    {
+        "id": "voice02",
+        "text": "Synthesis example with another reference voice.",
+        "ref_text": "",
+        "audio_file_path": "./voice/female_normal.wav"
+    },
+    # Add new tasks below:
+    # {
+    #     "id": "custom_voice",
+    #     "text": "Your text here",
+    #     "ref_text": "Optional reference transcript",
+    #     "audio_file_path": "./path/to/your/audio.wav"
+    # },
+]
+
+
+def process_task(task, task_index):
+    task_id = task.get("id", "unknown")
+    text = task.get("text", "")
+    ref_text = task.get("ref_text", "")
+    audio_path = task.get("audio_file_path", "")
+
+    print(f"\n{'='*60}")
+    print(f"🔹 Task #{task_index+1} | ID: {task_id}")
+    print(f"📝 Text: {text[:70]}{'...' if len(text) > 70 else ''}")
+
+    if not text or not text.strip():
+        print(f"⚠️  Skipped: empty text")
+        return False
+
+    if not os.path.exists(audio_path):
+        print(f"❌ Error: reference audio not found {audio_path}")
+        return False
+
+    try:
+        data = {
+            "text": text,
+            "ref_text": ref_text
+        }
+
+        with open(audio_path, 'rb') as f:
+            files = {"ref_audio": f}
+
+            print(f"➡️  Sending request to server...")
+            response = requests.post(API_URL, data=data, files=files, timeout=120)
+
+        if response.status_code == 200:
+            # Generate output filename: {ID}_{task_index}.wav
+            output_filename = f"{task_id}_{task_index+1}.wav"
+            output_path = os.path.join(OUTPUT_FOLDER, output_filename)
+
+            # Save file
+            with open(output_path, 'wb') as out:
+                out.write(response.content)
+
+            file_size = len(response.content)
+            duration = round(file_size / (16000 * 2), 1)  # 16kHz 16bit mono
+
+            print(f"✅ Success!")
+            print(f"💾 Saved to: {output_path}")
+            print(f"📊 Size: {file_size} bytes | Approx duration: {duration} sec")
+
+            return True
+        else:
+            print(f"❌ Server error {response.status_code}")
+            print(f"📄 Response: {response.text[:200]}")
+            return False
+
+    except Exception as e:
+        print(f"❌ Processing error: {type(e).__name__}: {str(e)}")
+        return False
+
+
+def main():
+    # Create OUT folder if doesn't exist
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+    total = len(TASKS)
+    success = 0
+    failed = 0
+
+    print(f"🚀 Batch processing started")
+    print(f"📋 Total tasks: {total}")
+    print(f"📂 Output folder: {OUTPUT_FOLDER}")
+
+    for index, task in enumerate(TASKS):
+        result = process_task(task, index)
+        if result:
+            success += 1
+        else:
+            failed += 1
+
+    print(f"\n{'='*60}")
+    print(f"✅ Processing complete!")
+    print(f"📊 Summary: total {total} | success {success} | failed {failed}")
+    print(f"📂 All files saved to folder: {OUTPUT_FOLDER}")
+
+
+if __name__ == "__main__":
+    main()
