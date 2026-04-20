@@ -12,19 +12,19 @@ TASKS = [
         "id": "voice01",
         "text": "Hello! This is the first test text for speech synthesis.",
         "ref_text": "",
-        "audio_file_path": "./voice/male_middle-aged_normal_pitch.wav"
+        "audio_file_path": "./OUT_DESIGN/voice_male_male_middle-aged_1.wav"
     },
     {
         "id": "voice01",
         "text": "Second example text with the same voice.",
         "ref_text": "",
-        "audio_file_path": "./voice/male_middle-aged_normal_pitch.wav"
+        "audio_file_path": "./OUT_DESIGN/voice_male_male_middle-aged_1.wav"
     },
     {
         "id": "voice02",
         "text": "Synthesis example with another reference voice.",
         "ref_text": "",
-        "audio_file_path": "./voice/female_normal.wav"
+        "audio_file_path": "./OUT_DESIGN/voice_female_female_middle-aged_2.wav"
     },
     # Add new tasks below:
     # {
