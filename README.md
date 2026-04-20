@@ -115,16 +115,13 @@ WAV audio file 16kHz mono.
 
 ## 🧪 Testing
 
-Use the included test client `test_client.py`:
-
-1. Edit the reference audio file path in the file:
-```python
-audio_file_path = "./path/to/your/audio/file.wav"
-```
-
-2. Run test:
+1. Run test:
 ```bash
-python test_client.py
+python test_client_design.py
+
+# or
+
+python test_client_multi.py
 ```
 
 On successful request result will be saved as `generated_speech.wav`
