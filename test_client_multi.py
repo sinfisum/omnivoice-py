@@ -1,9 +1,33 @@
 import os
 import requests
+import glob
+from datetime import datetime
 
 # --- Configuration ---
 API_URL = "http://127.0.0.1:8880/v1/audio/speech/clone"
 OUTPUT_FOLDER = "./OUT"
+OUT_DESIGN_FOLDER = "./OUT_DESIGN"
+
+
+def get_audio_file_path(audio_path):
+    """
+    Check if the specified audio file exists.
+    If not, scan OUT_DESIGN folder for .wav files and return the first found.
+    Returns None if no suitable file is found.
+    """
+    if os.path.exists(audio_path):
+        return audio_path
+
+    # Scan OUT_DESIGN for .wav files
+    wav_files = glob.glob(os.path.join(OUT_DESIGN_FOLDER, "*.wav"))
+
+    if wav_files:
+        print(f"⚠️  File not found: {audio_path}")
+        print(f"🔍 Using fallback from {OUT_DESIGN_FOLDER}: {wav_files[0]}")
+        return wav_files[0]
+
+    return None
+
 
 # --- Tasks list ---
 # Add any number of tasks here for batch processing
@@ -22,7 +46,7 @@ TASKS = [
     },
     {
         "id": "voice02",
-        "text": "Synthesis example with another reference voice.",
+        "text": "[laughter] А не пошел бы ты нахрен, со своими замашками! [laughter] .",
         "ref_text": "",
         "audio_file_path": "./OUT_DESIGN/voice_female_female_middle-aged_2.wav"
     },
@@ -50,8 +74,10 @@ def process_task(task, task_index):
         print(f"⚠️  Skipped: empty text")
         return False
 
-    if not os.path.exists(audio_path):
-        print(f"❌ Error: reference audio not found {audio_path}")
+    resolved_audio_path = get_audio_file_path(audio_path)
+
+    if not resolved_audio_path:
+        print(f"❌ Error: reference audio not found {audio_path} and no .wav files in {OUT_DESIGN_FOLDER}")
         return False
 
     try:
@@ -60,15 +86,15 @@ def process_task(task, task_index):
             "ref_text": ref_text
         }
 
-        with open(audio_path, 'rb') as f:
+        with open(resolved_audio_path, 'rb') as f:
             files = {"ref_audio": f}
 
             print(f"➡️  Sending request to server...")
             response = requests.post(API_URL, data=data, files=files, timeout=120)
 
         if response.status_code == 200:
-            # Generate output filename: {ID}_{task_index}.wav
-            output_filename = f"{task_id}_{task_index+1}.wav"
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            output_filename = f"{task_id}_{task_index+1}_{timestamp}.wav"
             output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
             # Save file

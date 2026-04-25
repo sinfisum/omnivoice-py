@@ -1,0 +1,1 @@
+python_embeded\python.exe test_client_design.py

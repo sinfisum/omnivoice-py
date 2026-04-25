@@ -1,0 +1,20 @@
+[project]
+name = "omniserv"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "accelerate>=0.34.0",
+    "fastapi>=0.115.0",
+    "numpy>=2.0.0",
+    "omnivoice>=0.1.0",
+    "python-multipart>=0.0.12",
+    "requests>=2.32.0",
+    "soundfile>=0.12.1",
+    "tokenizers>=0.20.0",
+    "torch>=2.5.0",
+    "torchaudio>=2.5.0",
+    "transformers>=4.45.0",
+    "uvicorn>=0.30.0",
+]

@@ -1,0 +1,1 @@
+python_embeded\python.exe server.py

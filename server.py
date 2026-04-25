@@ -1,18 +1,18 @@
 import os
 import logging
-import numpy as np
+import tempfile
 import soundfile as sf
 import torch
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel
 from io import BytesIO
 from omnivoice import OmniVoice, OmniVoiceGenerationConfig
 
 # --- Configuration ---
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
-CHECKPOINT = 'k2-fsa/OmniVoice'
+LOCAL_MODEL_PATH = "./model/OmniVoice"
+HF_CHECKPOINT = "k2-fsa/OmniVoice"
 HOST = "127.0.0.1"
 PORT = 8880
 
@@ -22,6 +22,14 @@ logging.basicConfig(
     format='%(asctime)s %(name)s %(levelname)s: %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# --- Determine model source ---
+if os.path.isdir(LOCAL_MODEL_PATH) and os.path.isfile(os.path.join(LOCAL_MODEL_PATH, "config.json")):
+    CHECKPOINT = LOCAL_MODEL_PATH
+    logger.info(f"Local model found at {LOCAL_MODEL_PATH}")
+else:
+    CHECKPOINT = HF_CHECKPOINT
+    logger.info(f"Local model not found, loading from HuggingFace Hub: {HF_CHECKPOINT}")
 
 # --- Model Loading ---
 logger.info(f"Loading OmniVoice model from {CHECKPOINT}...")
@@ -42,7 +50,7 @@ logger.info(f"Using device: {'CUDA GPU' if torch.cuda.is_available() else 'CPU'}
 app = FastAPI(
     title="OmniVoice TTS API",
     description="Zero-Shot TTS with Voice Cloning - 600+ Languages",
-    version="1.0.0"
+    version="0.1.1"
 )
 
 # --- Generation Config Defaults ---
@@ -77,19 +85,23 @@ async def clone_voice(
     try:
         # Save reference audio temporarily
         ref_audio_bytes = await ref_audio.read()
-        ref_audio_path = f"/tmp/ref_{os.urandom(4).hex()}.wav"
         
-        with open(ref_audio_path, "wb") as f:
-            f.write(ref_audio_bytes)
-        
-        # Create voice clone prompt
-        voice_prompt = model.create_voice_clone_prompt(
-            ref_audio=ref_audio_path,
-            ref_text=ref_text.strip() if ref_text else None,
-        )
-        
-        # Clean up temp file
-        os.unlink(ref_audio_path)
+        fd, ref_audio_path = tempfile.mkstemp(suffix=".wav")
+        try:
+            with os.fdopen(fd, "wb") as f:
+                f.write(ref_audio_bytes)
+            
+            # Create voice clone prompt
+            voice_prompt = model.create_voice_clone_prompt(
+                ref_audio=ref_audio_path,
+                ref_text=ref_text.strip() if ref_text else None,
+            )
+        finally:
+            # Clean up temp file
+            try:
+                os.unlink(ref_audio_path)
+            except OSError:
+                pass
         
         # Prepare generation parameters
         generation_kwargs = dict(

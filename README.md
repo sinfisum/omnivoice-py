@@ -17,7 +17,7 @@ Based on OmniVoice model by k2-fsa.
 ---
 
 ## 📋 Requirements
-- Python 3.10 - 3.12 (3.12 recommended)
+- Python 3.10 - 3.13 (3.12 recommended)
 - Minimum 8GB RAM
 - For GPU acceleration: NVIDIA GPU with CUDA 12.8+
 - NVidia RTX3060 12GB work perfectly
@@ -25,6 +25,17 @@ Based on OmniVoice model by k2-fsa.
 ---
 
 ## 🚀 Installation
+
+### Windows Portable
+There is a portable standalone build for Windows that should work for running on Nvidia GPUs or for running on your CPU only on the releases page.
+
+Simply download, extract with 7-Zip or with the windows explorer on recent windows versions and run:
+`01_StartServer.bat.`
+`02_StartTestDesign.bat.`
+
+If you have downloaded model files put them in .\model\OmniVoice
+
+The portable above currently comes with python 3.13 and pytorch cuda 12.8. Update your Nvidia drivers if it doesn't start.
 
 ### 1. Clone repository
 ```bash
