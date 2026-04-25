@@ -1,1 +1,11 @@
-python_embeded\python.exe server.py
+@echo off
+cd /d "%~dp0"
+set PYTHON_PATH=%~dp0python_embeded\python.exe
+
+if exist "%PYTHON_PATH%" (
+    "%PYTHON_PATH%" server.py
+) else (
+    echo Error: python.exe not found in python_embeded folder.
+)
+
+pause
